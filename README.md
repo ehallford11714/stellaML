@@ -1,0 +1,2 @@
+# stellaML
+automated ML framework
