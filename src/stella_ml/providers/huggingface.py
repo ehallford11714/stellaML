@@ -16,7 +16,7 @@ class HuggingFaceProvider(BaseModelProvider):
     """Provider for Hugging Face hosted inference models."""
 
     api_key: str
-    base_url: str = "https://api-inference.huggingface.co/models"
+    base_url: str = "https://router.huggingface.co/hf-inference/models"
     timeout_seconds: float = 60.0
 
     def infer(self, request_payload: InferenceRequest) -> InferenceResponse:

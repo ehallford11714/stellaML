@@ -9,3 +9,8 @@ def test_hf_extract_generated_text_list() -> None:
 def test_hf_extract_error() -> None:
     body = {"error": "model loading"}
     assert "HF_ERROR" in HuggingFaceProvider._extract_content(body)
+
+
+def test_hf_default_router_base_url() -> None:
+    provider = HuggingFaceProvider(api_key="x")
+    assert "router.huggingface.co" in provider.base_url

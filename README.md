@@ -70,3 +70,11 @@ print(out["skills"])
 ```bash
 python scripts/check_merge_conflicts.py
 ```
+
+## Agentic harness test with open-source Hugging Face model
+
+```bash
+HF_API_KEY=hf_xxx python examples/hf_agentic_harness_demo.py
+```
+
+This runs `AgentRunner` against `HuggingFaceH4/zephyr-7b-beta` through the Hugging Face inference router.
