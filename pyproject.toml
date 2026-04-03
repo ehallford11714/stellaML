@@ -11,6 +11,9 @@ requires-python = ">=3.10"
 authors = [{name = "stellaML contributors"}]
 dependencies = []
 
+[project.optional-dependencies]
+analytics = ["matplotlib>=3.8"]
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
