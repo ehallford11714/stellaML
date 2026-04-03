@@ -23,6 +23,13 @@ from stella_ml.feasibility import (
     is_hardware_feasible,
 )
 from stella_ml.harness import HarnessResult, OpenClawStyleHarness, ProblemAssessment
+from stella_ml.local_sota import (
+    LocalModelRecommendation,
+    ModelCandidate,
+    ensure_huggingface_api_key,
+    recommend_max_local_model,
+    web_search_hf_sota,
+)
 from stella_ml.ml_backends import (
     BackendStatus,
     create_pytorch_mlp,
@@ -55,6 +62,14 @@ from stella_ml.unstructured import (
     run_unstructured_nlp_pipeline,
     spacy_entities,
 )
+from stella_ml.web_orchestration import (
+    Skill,
+    SkillCatalog,
+    WebSearchResult,
+    acquire_skills_from_results,
+    web_search,
+    web_search_orchestration,
+)
 
 __all__ = [
     "AgentConfig",
@@ -72,15 +87,21 @@ __all__ = [
     "HuggingFaceProvider",
     "InferenceRequest",
     "InferenceResponse",
+    "LocalModelRecommendation",
     "Message",
+    "ModelCandidate",
     "OpenAICompatibleProvider",
     "OpenClawStyleHarness",
     "ProblemAssessment",
     "ProviderRegistry",
     "Role",
+    "Skill",
+    "SkillCatalog",
     "StellaConfig",
     "TextEDAReport",
     "UnstructuredDocument",
+    "WebSearchResult",
+    "acquire_skills_from_results",
     "apply_cleaning_operations",
     "auto_eda",
     "autoeda_text",
@@ -92,6 +113,7 @@ __all__ = [
     "demo_cuda",
     "detect_backend_availability",
     "detect_local_hardware",
+    "ensure_huggingface_api_key",
     "explore_chart",
     "explore_data",
     "extract_unstructured",
@@ -111,7 +133,11 @@ __all__ = [
     "parse_pptx_text",
     "parse_xml_text",
     "recommend_cpu_sota_1bit_models",
+    "recommend_max_local_model",
     "run_pymc_linear_regression",
     "run_unstructured_nlp_pipeline",
     "spacy_entities",
+    "web_search",
+    "web_search_hf_sota",
+    "web_search_orchestration",
 ]

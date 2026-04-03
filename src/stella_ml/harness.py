@@ -19,6 +19,7 @@ from stella_ml.feasibility import (
     autoimpute_experiment_specs,
     generate_feasibility_chain,
 )
+from stella_ml.local_sota import ensure_huggingface_api_key, recommend_max_local_model
 from stella_ml.ml_backends import (
     create_pytorch_mlp,
     create_tensorflow_mlp,
@@ -29,6 +30,7 @@ from stella_ml.ml_backends import (
     recommend_cpu_sota_1bit_models,
 )
 from stella_ml.unstructured import run_unstructured_nlp_pipeline
+from stella_ml.web_orchestration import web_search_orchestration
 
 
 @dataclass(slots=True)
@@ -53,8 +55,13 @@ class OpenClawStyleHarness:
     def evaluate_problem(self, user_query: str) -> ProblemAssessment:
         lower = user_query.lower()
         objective = "general_analysis"
-        requires_data = any(k in lower for k in ["dataset", "csv", "excel", "table", "rows", "url", "html", "xml", "pptx"])
-        automl_recommended = any(k in lower for k in ["predict", "forecast", "classification", "regression", "automl"])
+        requires_data = any(
+            k in lower
+            for k in ["dataset", "csv", "excel", "table", "rows", "url", "html", "xml", "pptx"]
+        )
+        automl_recommended = any(
+            k in lower for k in ["predict", "forecast", "classification", "regression", "automl"]
+        )
 
         if any(k in lower for k in ["classification", "classify"]):
             objective = "classification"
@@ -101,6 +108,20 @@ class OpenClawStyleHarness:
             "cpu_1bit_recommendations": recommend_cpu_sota_1bit_models(),
             "sklearn_estimators": list_sklearn_estimators(),
         }
+
+    def propose_api_vs_local_switch(self, task: str = "text-generation") -> dict[str, Any]:
+        recommendation = recommend_max_local_model(task=task)
+        return {
+            "recommendation": recommendation,
+            "prompt_user": recommendation.prompt_user,
+            "should_switch_to_local": recommendation.should_switch_to_local,
+        }
+
+    def ensure_hf_key(self, agent_name: str, api_key: str | None, config_path: str | None = None) -> str:
+        return ensure_huggingface_api_key(agent_name=agent_name, api_key=api_key, config_path=config_path)
+
+    def run_web_search_skill_acquisition(self, query: str, max_results: int = 5) -> dict[str, object]:
+        return web_search_orchestration(query=query, max_results=max_results)
 
     def create_custom_architecture(self, framework: str, input_dim: int, output_dim: int) -> Any:
         framework = framework.lower()

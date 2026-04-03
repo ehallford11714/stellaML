@@ -9,7 +9,7 @@ description = "Model inference, orchestration, and tabular analytics framework"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{name = "stellaML contributors"}]
-dependencies = []
+dependencies = ["requests>=2.32"]
 
 [project.optional-dependencies]
 analytics = [
