@@ -11,7 +11,7 @@ from stella_ml.analytics import (
     load_and_impute_csv,
     load_tabular_file,
 )
-from stella_ml.automl import AutoMLPlan, choose_analysis_mode
+from stella_ml.automl import AutoMLPlan, AutoMLResult, choose_analysis_mode, run_iris_automl_demo
 from stella_ml.config import AgentProfile, StellaConfig
 from stella_ml.feasibility import (
     ExperimentSpec,
@@ -77,6 +77,7 @@ __all__ = [
     "AgentRunResult",
     "AgentRunner",
     "AutoMLPlan",
+    "AutoMLResult",
     "BackendStatus",
     "BaseModelProvider",
     "EDAReport",
@@ -108,6 +109,7 @@ __all__ = [
     "autoimpute_experiment_specs",
     "build_registry_for_agent",
     "choose_analysis_mode",
+    "run_iris_automl_demo",
     "create_pytorch_mlp",
     "create_tensorflow_mlp",
     "demo_cuda",

@@ -2,66 +2,71 @@
 
 `stellaML` is a starter framework for model APIs + agentic orchestration + structured/unstructured data intelligence.
 
-## Install
+## Install via pip
 
 ```bash
 pip install -e .
+# or build/install wheel in your own pipeline:
+# python -m build && pip install dist/stella_ml-*.whl
+```
+
+Optional extras:
+
+```bash
 pip install -e '.[analytics]'
 pip install -e '.[ecosystem]'
 pip install -e '.[unstructured]'
 ```
 
-## New: local SOTA model selection + API/local switch prompt
+## Current infrastructure (short summary)
+
+- **Provider layer**: OpenAI-compatible and Hugging Face model adapters.
+- **OpenClaw-style orchestration**: high-level `OpenClawStyleHarness` and low-level `AgentRunner`.
+- **Structured data intelligence**: CSV/Excel cleaning, auto-EDA, and chart generation.
+- **Unstructured intelligence**: URL/HTML/XML/PPTX extraction + NLP helpers.
+- **Local deployment planning**: hardware feasibility + local SOTA recommendation + API/local switch prompt.
+
+Detailed review: `docs/openclaw_integration_review.md`.
+Roadmap: `docs/framework_roadmap.md`.
+
+## API vs Local decision + HF key management
 
 ```python
 from stella_ml import OpenClawStyleHarness
 
 harness = OpenClawStyleHarness()
-
-# 1) Latest web search of HF SOTA (downloads-based) + hardware fit recommendation.
 recommendation = harness.propose_api_vs_local_switch(task="text-generation")
-print(recommendation["recommendation"])
-print(recommendation["prompt_user"])  # Ask user: continue API or switch local
+print(recommendation["prompt_user"])
 
-# 2) If HF API key is missing, request/save key to config.
-message = harness.ensure_hf_key(agent_name="analyst", api_key=None)
-print(message)
-# -> prompts for API key or local mode fallback
+# If missing HF key, request from user and save into config:
+print(harness.ensure_hf_key(agent_name="analyst", api_key=None))
+# Later, save provided key:
+# print(harness.ensure_hf_key(agent_name="analyst", api_key="hf_xxx"))
 ```
 
-## Web search orchestration + skill acquisition
+## Iris AutoML demo
+
+```bash
+python examples/iris_automl_demo.py
+```
+
+This runs a compact model sweep (logistic regression, random forest, gradient boosting, SVM, KNN) and prints a leaderboard.
+
+## Web-search orchestration + skill acquisition
 
 ```python
 from stella_ml import OpenClawStyleHarness
 
 harness = OpenClawStyleHarness()
-search_plan = harness.run_web_search_skill_acquisition(
+out = harness.run_web_search_skill_acquisition(
     query="best methods for extracting article text and entity extraction",
     max_results=5,
 )
-print(search_plan["results"])
-print(search_plan["skills"])  # auto-acquired skills for tool planning
+print(out["skills"])
 ```
 
-## Unstructured extraction core (requests, BeautifulSoup, Selenium, HTML/XML/PPTX)
+## Merge conflict resolution helper
 
-```python
-from stella_ml import OpenClawStyleHarness
-
-harness = OpenClawStyleHarness()
-out = harness.run_unstructured_data_flow(
-    source="https://example.com",
-    source_type="url",
-    fetch_mode="requests",  # or 'selenium' for JS-rendered pages
-    ngram_n=2,
-)
-print(out["text_eda"])
-print(out["ngrams"][:10])
-print(out["entities"][:10])
+```bash
+python scripts/check_merge_conflicts.py
 ```
-
-## Notes
-
-- Architecture summary + expansion roadmap: `docs/framework_roadmap.md`.
-- HF local recommendation is heuristic and uses current web pull from HF model API.
-- `ensure_hf_key` can write API keys to config for existing agent profiles.
