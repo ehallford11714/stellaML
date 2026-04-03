@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from stella_ml.analytics import (
     EDAReport,
@@ -17,6 +18,15 @@ from stella_ml.feasibility import (
     HardwareProfile,
     autoimpute_experiment_specs,
     generate_feasibility_chain,
+)
+from stella_ml.ml_backends import (
+    create_pytorch_mlp,
+    create_tensorflow_mlp,
+    demo_cuda,
+    detect_backend_availability,
+    install_packages,
+    list_sklearn_estimators,
+    recommend_cpu_sota_1bit_models,
 )
 
 
@@ -79,6 +89,28 @@ class OpenClawStyleHarness:
     def plan_experiments(self, hypothesis: str) -> list[str]:
         """Generate candidate experiment names from hypothesis semantics."""
         return [spec.name for spec in autoimpute_experiment_specs(hypothesis)]
+
+    def setup_ml_ecosystem(self, install_missing: bool = False) -> dict[str, Any]:
+        """Integrate NLP/DL/probabilistic stack and optionally install missing packages."""
+        status = detect_backend_availability()
+        missing = [name for name, info in status.items() if not info.available]
+        install_results = install_packages(missing) if install_missing and missing else {}
+        return {
+            "status": status,
+            "missing": missing,
+            "install_results": install_results,
+            "cuda": demo_cuda(),
+            "cpu_1bit_recommendations": recommend_cpu_sota_1bit_models(),
+            "sklearn_estimators": list_sklearn_estimators(),
+        }
+
+    def create_custom_architecture(self, framework: str, input_dim: int, output_dim: int) -> Any:
+        framework = framework.lower()
+        if framework in {"tensorflow", "keras"}:
+            return create_tensorflow_mlp(input_dim, output_dim)
+        if framework in {"pytorch", "torch"}:
+            return create_pytorch_mlp(input_dim, output_dim)
+        raise ValueError(f"Unsupported framework for architecture creation: {framework}")
 
     def run_data_flow(
         self,

@@ -23,6 +23,17 @@ from stella_ml.feasibility import (
     is_hardware_feasible,
 )
 from stella_ml.harness import HarnessResult, OpenClawStyleHarness, ProblemAssessment
+from stella_ml.ml_backends import (
+    BackendStatus,
+    create_pytorch_mlp,
+    create_tensorflow_mlp,
+    demo_cuda,
+    detect_backend_availability,
+    install_packages,
+    list_sklearn_estimators,
+    recommend_cpu_sota_1bit_models,
+    run_pymc_linear_regression,
+)
 from stella_ml.models import InferenceRequest, InferenceResponse, Message, Role
 from stella_ml.orchestrator import AgentConfig, AgentRunResult, AgentRunner
 from stella_ml.providers.base import BaseModelProvider, ProviderRegistry
@@ -36,6 +47,7 @@ __all__ = [
     "AgentRunResult",
     "AgentRunner",
     "AutoMLPlan",
+    "BackendStatus",
     "BaseModelProvider",
     "EDAReport",
     "ExperimentSpec",
@@ -57,13 +69,21 @@ __all__ = [
     "autoimpute_experiment_specs",
     "build_registry_for_agent",
     "choose_analysis_mode",
+    "create_pytorch_mlp",
+    "create_tensorflow_mlp",
+    "demo_cuda",
+    "detect_backend_availability",
     "detect_local_hardware",
     "explore_chart",
     "explore_data",
     "generate_bar_chart",
     "generate_feasibility_chain",
     "infer_structure",
+    "install_packages",
     "is_hardware_feasible",
+    "list_sklearn_estimators",
     "load_and_impute_csv",
     "load_tabular_file",
+    "recommend_cpu_sota_1bit_models",
+    "run_pymc_linear_regression",
 ]

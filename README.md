@@ -2,26 +2,36 @@
 
 `stellaML` is a starter framework for model APIs + agentic orchestration + data intelligence workflows.
 
-## Current schema (high-level)
-
-- **Model layer**: normalized request/response schemas + OpenAI-compatible and Hugging Face providers.
-- **Config/runtime layer**: per-agent API keys and provider registry construction.
-- **Orchestration layer**:
-  - `AgentRunner` for ReAct loop,
-  - `OpenClawStyleHarness` for problem evaluation, data workflow execution, and hardware-feasibility planning.
-- **Data layer**: CSV/Excel load, auto-impute, cleaning toolbox, auto-EDA, `explore_chart`, and `explore_data` recommendations.
-- **Feasibility layer**:
-  - `detect_local_hardware()` to infer local specs,
-  - `is_hardware_feasible()` to score experiments,
-  - `autoimpute_experiment_specs()` to generate hypothesis-driven experiments,
-  - `generate_feasibility_chain()` to evaluate all candidate experiments on local hardware.
-
 ## Install
 
 ```bash
 pip install -e .
 pip install -e '.[analytics]'
+# Full ecosystem (NLP + DL + probabilistic)
+pip install -e '.[ecosystem]'
 ```
+
+## ML ecosystem integration (NLTK, spaCy, TensorFlow, Keras, PyTorch, sklearn, PyMC)
+
+```python
+from stella_ml import OpenClawStyleHarness
+
+harness = OpenClawStyleHarness()
+
+# Detect available backends and optionally install missing ones.
+ecosystem = harness.setup_ml_ecosystem(install_missing=False)
+print(ecosystem["missing"])
+print(ecosystem["cuda"])
+print(len(ecosystem["sklearn_estimators"]))
+
+# Build custom architectures.
+pt_model = harness.create_custom_architecture("pytorch", input_dim=32, output_dim=1)
+tf_model = harness.create_custom_architecture("tensorflow", input_dim=32, output_dim=1)
+```
+
+### CUDA demo + CPU fallback using 1-bit/ultra-quantized recommendations
+
+If CUDA is unavailable, `setup_ml_ecosystem()` exposes `cpu_1bit_recommendations` for BitNet-style / GGUF low-bit CPU workflows.
 
 ## Hardware feasibility chain
 
@@ -31,17 +41,13 @@ from stella_ml import OpenClawStyleHarness, detect_local_hardware
 harness = OpenClawStyleHarness()
 hardware = detect_local_hardware()
 
-# isHardwareFeasible chain: auto-impute experiments from hypothesis and score feasibility
 feasibility = harness.isHardwareFeasible(
-    hypothesis="Hypothesis: gradient-boosted forecasting will beat linear baselines for demand planning",
+    hypothesis="Hypothesis: gradient-boosted forecasting will beat linear baselines",
     hardware=hardware,
 )
-
 for exp_name, report in feasibility:
     print(exp_name, report.feasible, report.score, report.reasons)
 ```
-
-This provides local experiment candidates (baseline + stronger models) and whether your hardware is sufficient.
 
 ## Data flow example (CSV/Excel → clean → EDA → charts)
 
@@ -74,4 +80,5 @@ print(result.chart_paths)
 
 - `explore_chart` supports: `auto`, `bar`, `count`, `hist`, `line`, `scatter`, `box`, `pie`, `area`, `heatmap`.
 - `apply_cleaning_operations` supports: dedupe, binarize, discretize, normalize, standardize, one-hot, fill-missing.
-- Use `choose_analysis_mode("automl" | "manual" | "ask", objective)` to enable AutoML mode or request user choice.
+- `list_sklearn_estimators()` exposes all available sklearn estimator names in the current environment.
+- `run_pymc_linear_regression()` provides a lightweight Bayesian regression utility when PyMC is installed.
