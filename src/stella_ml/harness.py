@@ -28,6 +28,7 @@ from stella_ml.ml_backends import (
     list_sklearn_estimators,
     recommend_cpu_sota_1bit_models,
 )
+from stella_ml.unstructured import run_unstructured_nlp_pipeline
 
 
 @dataclass(slots=True)
@@ -52,7 +53,7 @@ class OpenClawStyleHarness:
     def evaluate_problem(self, user_query: str) -> ProblemAssessment:
         lower = user_query.lower()
         objective = "general_analysis"
-        requires_data = any(k in lower for k in ["dataset", "csv", "excel", "table", "rows"])
+        requires_data = any(k in lower for k in ["dataset", "csv", "excel", "table", "rows", "url", "html", "xml", "pptx"])
         automl_recommended = any(k in lower for k in ["predict", "forecast", "classification", "regression", "automl"])
 
         if any(k in lower for k in ["classification", "classify"]):
@@ -61,11 +62,11 @@ class OpenClawStyleHarness:
             objective = "regression"
         elif any(k in lower for k in ["cluster", "segment"]):
             objective = "clustering"
-        elif any(k in lower for k in ["eda", "explore", "insight"]):
+        elif any(k in lower for k in ["eda", "explore", "insight", "ngram", "entity"]):
             objective = "exploratory_analysis"
 
         follow_up = (
-            "Would you like AutoML enabled for model search, or should I run guided statistical analysis?"
+            "Would you like AutoML enabled for model search, or should I run guided statistical/NLP analysis?"
             if automl_recommended
             else None
         )
@@ -82,16 +83,13 @@ class OpenClawStyleHarness:
         hypothesis: str,
         hardware: HardwareProfile | None = None,
     ) -> list[tuple[str, FeasibilityReport]]:
-        """Auto-impute experiment specs and evaluate local hardware feasibility."""
         chain = generate_feasibility_chain(hypothesis, hardware=hardware)
         return [(spec.name, report) for spec, report in chain]
 
     def plan_experiments(self, hypothesis: str) -> list[str]:
-        """Generate candidate experiment names from hypothesis semantics."""
         return [spec.name for spec in autoimpute_experiment_specs(hypothesis)]
 
     def setup_ml_ecosystem(self, install_missing: bool = False) -> dict[str, Any]:
-        """Integrate NLP/DL/probabilistic stack and optionally install missing packages."""
         status = detect_backend_availability()
         missing = [name for name, info in status.items() if not info.available]
         install_results = install_packages(missing) if install_missing and missing else {}
@@ -111,6 +109,20 @@ class OpenClawStyleHarness:
         if framework in {"pytorch", "torch"}:
             return create_pytorch_mlp(input_dim, output_dim)
         raise ValueError(f"Unsupported framework for architecture creation: {framework}")
+
+    def run_unstructured_data_flow(
+        self,
+        source: str,
+        source_type: str = "url",
+        fetch_mode: str = "requests",
+        ngram_n: int = 2,
+    ) -> dict[str, Any]:
+        return run_unstructured_nlp_pipeline(
+            source=source,
+            source_type=source_type,
+            fetch_mode=fetch_mode,
+            ngram_n=ngram_n,
+        )
 
     def run_data_flow(
         self,

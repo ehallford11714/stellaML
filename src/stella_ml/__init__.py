@@ -40,6 +40,21 @@ from stella_ml.providers.base import BaseModelProvider, ProviderRegistry
 from stella_ml.providers.huggingface import HuggingFaceProvider
 from stella_ml.providers.openai_compatible import OpenAICompatibleProvider
 from stella_ml.runtime import build_registry_for_agent
+from stella_ml.unstructured import (
+    TextEDAReport,
+    UnstructuredDocument,
+    autoeda_text,
+    extract_unstructured,
+    fetch_url_with_requests,
+    fetch_url_with_selenium,
+    ngrams,
+    nltk_ngrams,
+    parse_html_text,
+    parse_pptx_text,
+    parse_xml_text,
+    run_unstructured_nlp_pipeline,
+    spacy_entities,
+)
 
 __all__ = [
     "AgentConfig",
@@ -64,8 +79,11 @@ __all__ = [
     "ProviderRegistry",
     "Role",
     "StellaConfig",
+    "TextEDAReport",
+    "UnstructuredDocument",
     "apply_cleaning_operations",
     "auto_eda",
+    "autoeda_text",
     "autoimpute_experiment_specs",
     "build_registry_for_agent",
     "choose_analysis_mode",
@@ -76,6 +94,9 @@ __all__ = [
     "detect_local_hardware",
     "explore_chart",
     "explore_data",
+    "extract_unstructured",
+    "fetch_url_with_requests",
+    "fetch_url_with_selenium",
     "generate_bar_chart",
     "generate_feasibility_chain",
     "infer_structure",
@@ -84,6 +105,13 @@ __all__ = [
     "list_sklearn_estimators",
     "load_and_impute_csv",
     "load_tabular_file",
+    "ngrams",
+    "nltk_ngrams",
+    "parse_html_text",
+    "parse_pptx_text",
+    "parse_xml_text",
     "recommend_cpu_sota_1bit_models",
     "run_pymc_linear_regression",
+    "run_unstructured_nlp_pipeline",
+    "spacy_entities",
 ]
