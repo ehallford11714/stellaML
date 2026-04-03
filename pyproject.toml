@@ -5,14 +5,18 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "stella-ml"
 version = "0.1.0"
-description = "Basic model-inference and agentic orchestration framework"
+description = "Model inference, orchestration, and tabular analytics framework"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{name = "stellaML contributors"}]
 dependencies = []
 
 [project.optional-dependencies]
-analytics = ["matplotlib>=3.8"]
+analytics = [
+  "matplotlib>=3.8",
+  "openpyxl>=3.1",
+  "numpy>=1.26",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
