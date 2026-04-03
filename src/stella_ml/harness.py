@@ -12,6 +12,12 @@ from stella_ml.analytics import (
     explore_chart,
     load_tabular_file,
 )
+from stella_ml.feasibility import (
+    FeasibilityReport,
+    HardwareProfile,
+    autoimpute_experiment_specs,
+    generate_feasibility_chain,
+)
 
 
 @dataclass(slots=True)
@@ -60,6 +66,19 @@ class OpenClawStyleHarness:
             automl_recommended=automl_recommended,
             follow_up_question=follow_up,
         )
+
+    def isHardwareFeasible(
+        self,
+        hypothesis: str,
+        hardware: HardwareProfile | None = None,
+    ) -> list[tuple[str, FeasibilityReport]]:
+        """Auto-impute experiment specs and evaluate local hardware feasibility."""
+        chain = generate_feasibility_chain(hypothesis, hardware=hardware)
+        return [(spec.name, report) for spec, report in chain]
+
+    def plan_experiments(self, hypothesis: str) -> list[str]:
+        """Generate candidate experiment names from hypothesis semantics."""
+        return [spec.name for spec in autoimpute_experiment_specs(hypothesis)]
 
     def run_data_flow(
         self,

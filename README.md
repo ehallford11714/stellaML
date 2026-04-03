@@ -4,21 +4,17 @@
 
 ## Current schema (high-level)
 
-- **Model layer**
-  - `InferenceRequest`, `InferenceResponse`, `Message`, `Role` for normalized provider payloads.
-  - Providers: `OpenAICompatibleProvider`, `HuggingFaceProvider`.
-- **Agent config layer**
-  - `StellaConfig` / `AgentProfile`: per-agent model, provider default, API keys, and base URLs.
-  - `build_registry_for_agent()` builds live provider registry from stored keys.
-- **Orchestration layer**
-  - `AgentRunner`: ReAct-style single-agent loop (`TOOL:` / `FINAL:` protocol).
-  - `OpenClawStyleHarness`: higher-level problem assessment + data flow orchestration.
-- **Data intelligence layer**
-  - `load_tabular_file()` supports CSV and Excel.
-  - `infer_structure()`, `impute_missing()`, `auto_eda()`.
-  - `apply_cleaning_operations()` toolbox (binarize, discretize, normalize, standardize, one-hot, fill missing, dedupe).
-  - `explore_chart()` generates multiple chart types.
-  - `explore_data()` emits insight summary and next-step recommendations.
+- **Model layer**: normalized request/response schemas + OpenAI-compatible and Hugging Face providers.
+- **Config/runtime layer**: per-agent API keys and provider registry construction.
+- **Orchestration layer**:
+  - `AgentRunner` for ReAct loop,
+  - `OpenClawStyleHarness` for problem evaluation, data workflow execution, and hardware-feasibility planning.
+- **Data layer**: CSV/Excel load, auto-impute, cleaning toolbox, auto-EDA, `explore_chart`, and `explore_data` recommendations.
+- **Feasibility layer**:
+  - `detect_local_hardware()` to infer local specs,
+  - `is_hardware_feasible()` to score experiments,
+  - `autoimpute_experiment_specs()` to generate hypothesis-driven experiments,
+  - `generate_feasibility_chain()` to evaluate all candidate experiments on local hardware.
 
 ## Install
 
@@ -27,44 +23,27 @@ pip install -e .
 pip install -e '.[analytics]'
 ```
 
-`analytics` extra installs `matplotlib` (for charting) and `openpyxl` (for Excel support).
-
-## Per-agent API key config
-
-Create `~/.stella_ml/config.json`:
-
-```json
-{
-  "agents": {
-    "analyst": {
-      "model": "gpt-4.1-mini",
-      "default_provider": "openai",
-      "api_keys": {
-        "openai": "<OPENAI_OR_COMPATIBLE_KEY>",
-        "huggingface": "<HF_TOKEN>"
-      },
-      "base_urls": {
-        "openai": "https://api.openai.com/v1",
-        "huggingface": "https://api-inference.huggingface.co/models"
-      }
-    }
-  }
-}
-```
-
-## Orchestration harness usage
+## Hardware feasibility chain
 
 ```python
-from stella_ml import OpenClawStyleHarness, choose_analysis_mode
+from stella_ml import OpenClawStyleHarness, detect_local_hardware
 
 harness = OpenClawStyleHarness()
-assessment = harness.evaluate_problem("Forecast monthly demand from this CSV with AutoML")
-plan = choose_analysis_mode(user_preference="ask", objective=assessment.objective)
-print(assessment)
-print(plan.prompt_user)
+hardware = detect_local_hardware()
+
+# isHardwareFeasible chain: auto-impute experiments from hypothesis and score feasibility
+feasibility = harness.isHardwareFeasible(
+    hypothesis="Hypothesis: gradient-boosted forecasting will beat linear baselines for demand planning",
+    hardware=hardware,
+)
+
+for exp_name, report in feasibility:
+    print(exp_name, report.feasible, report.score, report.reasons)
 ```
 
-## Data flow example (CSV/Excel → EDA → charts)
+This provides local experiment candidates (baseline + stronger models) and whether your hardware is sufficient.
+
+## Data flow example (CSV/Excel → clean → EDA → charts)
 
 ```python
 from stella_ml import OpenClawStyleHarness
@@ -76,32 +55,23 @@ result = harness.solve(
     cleaning_ops=[
         {"op": "fill_missing", "column": "sales", "strategy": "mean"},
         {"op": "binarize", "column": "sales", "threshold": 1050, "new_column": "high_sales"},
-        {"op": "discretize", "column": "sales", "bins": 3}
+        {"op": "discretize", "column": "sales", "bins": 3},
+        {"op": "one_hot_encode", "column": "region"}
     ],
     charts=[
         {"chart_type": "bar", "x": "region", "output_path": "artifacts/region_bar.png"},
-        {"chart_type": "hist", "y": "sales", "output_path": "artifacts/sales_hist.png"}
+        {"chart_type": "hist", "y": "sales", "output_path": "artifacts/sales_hist.png"},
+        {"chart_type": "pie", "x": "channel", "output_path": "artifacts/channel_pie.png"}
     ],
 )
 
-print(result.assessment)
 print(result.eda_report)
 print(result.insight_summary)
 print(result.chart_paths)
 ```
 
-## SOTA-inspired extension roadmap
+## Notes
 
-Framework patterns to continue borrowing:
-- **LangGraph-style graph states**: explicit state machine nodes for plan/act/review loops.
-- **AutoGen-style multi-agent teams**: planner, analyst, critic, and tool-executor roles.
-- **CrewAI-style role memories**: role goals + context windows + delegated subtasks.
-- **OpenClaw-style tool rigor**: strict tool contracts, retries, and guarded execution.
-
-Potential next additions:
-1. DAG-based orchestrator with branch/merge policies.
-2. Judge/critic model pass for quality scoring.
-3. Retrieval layer for long context (vector + SQL hybrid).
-4. AutoML executor plugins (classification/regression/time-series).
-5. Cost + latency budgets per run.
-6. Human-in-the-loop checkpoints for irreversible actions.
+- `explore_chart` supports: `auto`, `bar`, `count`, `hist`, `line`, `scatter`, `box`, `pie`, `area`, `heatmap`.
+- `apply_cleaning_operations` supports: dedupe, binarize, discretize, normalize, standardize, one-hot, fill-missing.
+- Use `choose_analysis_mode("automl" | "manual" | "ask", objective)` to enable AutoML mode or request user choice.

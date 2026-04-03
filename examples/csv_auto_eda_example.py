@@ -1,6 +1,17 @@
-from stella_ml import OpenClawStyleHarness
+from stella_ml import OpenClawStyleHarness, detect_local_hardware
 
 harness = OpenClawStyleHarness()
+
+# 1) Evaluate local feasibility for hypothesis-driven experiments.
+hardware = detect_local_hardware()
+feasibility = harness.isHardwareFeasible(
+    "Hypothesis: forecasting with tree-based models improves demand accuracy over linear baseline",
+    hardware=hardware,
+)
+for name, report in feasibility:
+    print(name, report.feasible, report.score)
+
+# 2) Run tabular orchestration flow.
 result = harness.solve(
     user_query="Auto-EDA this dataset and provide recommended next steps.",
     file_path="examples/sales.csv",

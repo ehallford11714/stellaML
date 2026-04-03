@@ -13,6 +13,15 @@ from stella_ml.analytics import (
 )
 from stella_ml.automl import AutoMLPlan, choose_analysis_mode
 from stella_ml.config import AgentProfile, StellaConfig
+from stella_ml.feasibility import (
+    ExperimentSpec,
+    FeasibilityReport,
+    HardwareProfile,
+    autoimpute_experiment_specs,
+    detect_local_hardware,
+    generate_feasibility_chain,
+    is_hardware_feasible,
+)
 from stella_ml.harness import HarnessResult, OpenClawStyleHarness, ProblemAssessment
 from stella_ml.models import InferenceRequest, InferenceResponse, Message, Role
 from stella_ml.orchestrator import AgentConfig, AgentRunResult, AgentRunner
@@ -29,7 +38,10 @@ __all__ = [
     "AutoMLPlan",
     "BaseModelProvider",
     "EDAReport",
+    "ExperimentSpec",
+    "FeasibilityReport",
     "HarnessResult",
+    "HardwareProfile",
     "HuggingFaceProvider",
     "InferenceRequest",
     "InferenceResponse",
@@ -42,12 +54,16 @@ __all__ = [
     "StellaConfig",
     "apply_cleaning_operations",
     "auto_eda",
+    "autoimpute_experiment_specs",
     "build_registry_for_agent",
     "choose_analysis_mode",
+    "detect_local_hardware",
     "explore_chart",
     "explore_data",
     "generate_bar_chart",
+    "generate_feasibility_chain",
     "infer_structure",
+    "is_hardware_feasible",
     "load_and_impute_csv",
     "load_tabular_file",
 ]
