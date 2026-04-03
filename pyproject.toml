@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stella-ml"
+version = "0.1.0"
+description = "Model inference, orchestration, and tabular analytics framework"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name = "stellaML contributors"}]
+dependencies = ["requests>=2.32"]
+
+[project.optional-dependencies]
+analytics = [
+  "matplotlib>=3.8",
+  "openpyxl>=3.1",
+  "numpy>=1.26",
+]
+ecosystem = [
+  "nltk>=3.9",
+  "spacy>=3.7",
+  "tensorflow>=2.16",
+  "keras>=3.0",
+  "torch>=2.2",
+  "scikit-learn>=1.4",
+  "pymc>=5.0",
+]
+unstructured = [
+  "requests>=2.32",
+  "beautifulsoup4>=4.12",
+  "selenium>=4.20",
+  "python-pptx>=0.6.23",
+  "lxml>=5.2",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
