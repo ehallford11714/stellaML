@@ -1,72 +1,67 @@
 # stellaML
 
-`stellaML` is an agentic machine-learning orchestration framework built around a **STELLA lattice** state model.
+`stellaML` is a starter framework for model APIs + agentic orchestration + structured/unstructured data intelligence.
 
-## What this framework provides
-
-- **STELLA lattice core** to represent orchestration state across Strategy, Tasking, Execution, Learning, and Alignment.
-- **Agent contract + built-in agents** (`Planner`, `Executor`, `Critic`).
-- **Orchestration harness** that progresses along a lattice trajectory and runs agents at each checkpoint.
-- **Extensible package structure** for custom agents, policies, and runtime integrations.
-
-## Quick start
+## Install
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
 pip install -e .
-python examples/run_demo.py
+pip install -e '.[analytics]'
+pip install -e '.[ecosystem]'
+pip install -e '.[unstructured]'
 ```
 
-## Core concepts
-
-### 1) STELLA lattice
-
-The framework models runtime intent and control as a 5D node:
-
-- `strategy`
-- `tasking`
-- `execution`
-- `learning`
-- `alignment`
-
-Each axis is a normalized value in `[0, 1]`.
-
-### 2) Agentic orchestration harness
-
-The orchestrator:
-
-1. builds a trajectory from a start node to a target node,
-2. runs each registered agent at each trajectory checkpoint,
-3. merges agent patches into a shared state memory,
-4. returns complete orchestration results (path, outcomes, final state).
-
-## Minimal usage
+## New: local SOTA model selection + API/local switch prompt
 
 ```python
-from stellaml import HarnessConfig, StellaNode, run_harness
+from stella_ml import OpenClawStyleHarness
 
-config = HarnessConfig(
-    objective="Train robust forecasting model",
-    start=StellaNode(0.2, 0.2, 0.2, 0.2, 0.8),
-    target=StellaNode(0.9, 0.8, 0.9, 0.8, 1.0),
-    steps=5,
-)
+harness = OpenClawStyleHarness()
 
-result = run_harness(config)
-print(result.state)
+# 1) Latest web search of HF SOTA (downloads-based) + hardware fit recommendation.
+recommendation = harness.propose_api_vs_local_switch(task="text-generation")
+print(recommendation["recommendation"])
+print(recommendation["prompt_user"])  # Ask user: continue API or switch local
+
+# 2) If HF API key is missing, request/save key to config.
+message = harness.ensure_hf_key(agent_name="analyst", api_key=None)
+print(message)
+# -> prompts for API key or local mode fallback
 ```
 
-## Project layout
+## Web search orchestration + skill acquisition
 
-- `src/stellaml/lattice.py` — STELLA lattice model.
-- `src/stellaml/agents.py` — agent interfaces and reference agents.
-- `src/stellaml/orchestrator.py` — multi-agent orchestration engine.
-- `src/stellaml/harness.py` — default framework bootstrap.
-- `tests/test_harness.py` — smoke test for end-to-end harness behavior.
+```python
+from stella_ml import OpenClawStyleHarness
 
-## Next extensions
+harness = OpenClawStyleHarness()
+search_plan = harness.run_web_search_skill_acquisition(
+    query="best methods for extracting article text and entity extraction",
+    max_results=5,
+)
+print(search_plan["results"])
+print(search_plan["skills"])  # auto-acquired skills for tool planning
+```
 
-- Add policy engine for dynamic agent selection.
-- Integrate experiment tracker and model registry.
-- Add async runner and distributed execution backend.
+## Unstructured extraction core (requests, BeautifulSoup, Selenium, HTML/XML/PPTX)
+
+```python
+from stella_ml import OpenClawStyleHarness
+
+harness = OpenClawStyleHarness()
+out = harness.run_unstructured_data_flow(
+    source="https://example.com",
+    source_type="url",
+    fetch_mode="requests",  # or 'selenium' for JS-rendered pages
+    ngram_n=2,
+)
+print(out["text_eda"])
+print(out["ngrams"][:10])
+print(out["entities"][:10])
+```
+
+## Notes
+
+- Architecture summary + expansion roadmap: `docs/framework_roadmap.md`.
+- HF local recommendation is heuristic and uses current web pull from HF model API.
+- `ensure_hf_key` can write API keys to config for existing agent profiles.

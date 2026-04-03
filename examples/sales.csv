@@ -1,0 +1,6 @@
+region,sales,channel
+West,1200,Online
+East,980,Retail
+West,,Retail
+South,1110,
+East,1020,Online
